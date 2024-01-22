@@ -46,7 +46,7 @@ REM Create the distribution directory
 mkdir "%DIST%"
 
 REM Create the "no install" zip version
-for %%a in ("%GOBIN%") do (buildtools\zip -j -9 -r "%DIST%\nvm-noinstall.zip" "%CD%\LICENSE" %%a\* -x "%GOBIN%\nodejs.ico")
+for %%a in ("%GOBIN%") do (buildtools\zip -j -9 -r "%DIST%\nvm-noinstall-%GOARCH%.zip" "%CD%\LICENSE" %%a\* -x "%GOBIN%\nodejs.ico")
 
 REM Generate update utility
 echo ----------------------------
@@ -76,13 +76,13 @@ buildtools\signtool.exe sign /debug /tr http://timestamp.sectigo.com /td sha256 
 echo ----------------------------
 echo Bundle the installer...
 echo ----------------------------
-buildtools\zip -j -9 -r "%DIST%\nvm-setup.zip" "%DIST%\nvm-setup.exe"
+buildtools\zip -j -9 -r "%DIST%\nvm-setup-%GOARCH%.zip" "%DIST%\nvm-setup.exe"
 
 
 echo ----------------------------
 echo Bundle the updater...
 echo ----------------------------
-buildtools\zip -j -9 -r "%DIST%\nvm-update.zip" "%DIST%\nvm-update.exe"
+buildtools\zip -j -9 -r "%DIST%\nvm-update-%GOARCH%.zip" "%DIST%\nvm-update.exe"
 
 del "%DIST%\nvm-update.exe"
 del "%DIST%\nvm-setup.exe"
