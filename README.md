@@ -1,9 +1,9 @@
-<div align="center"><h2>Notice: We have started full time work on <a href="https://github.com/coreybutler/nvm-windows/wiki/Runtime">Runtime</a>, the successor to NVM for Windows.</h2>Complete <a href="https://t.co/oGqQCM9FPx">this form</a> to provide your thoughts and sign up for progress updates</div>
+<div align="center"><h2>Notice: We have started full time work on <a href="https://github.com/coreybutler/nvm-windows/wiki/Runtime">Runtime</a>, the successor to NVM for Windows or Nano Server.</h2>Complete <a href="https://t.co/oGqQCM9FPx">this form</a> to provide your thoughts and sign up for progress updates</div>
 <br/><br/>
-<h1 align="center">NVM for Windows</h1>
+<h1 align="center">NVM for Windows or Nano Server</h1>
 
 <div align="center">
-  The <a href="https://docs.microsoft.com/en-us/windows/nodejs/setup-on-windows">Microsoft</a>/<a href="https://docs.npmjs.com/cli/v9/configuring-npm/install#windows-node-version-managers">npm</a>/<a href="https://cloud.google.com/nodejs/docs/setup#installing_nvm">Google</a> recommended Node.js version manager for <em>Windows</em>.<br/>
+  The <a href="https://docs.microsoft.com/en-us/windows/nodejs/setup-on-windows">Microsoft</a>/<a href="https://docs.npmjs.com/cli/v9/configuring-npm/install#windows-node-version-managers">npm</a>/<a href="https://cloud.google.com/nodejs/docs/setup#installing_nvm">Google</a> recommended Node.js version manager for <em>Windows</em> or <em>Nano Server</em>.<br/>
 
 <details>
 <summary><b>This is not the same thing as nvm!</b> (expand for details)</summary>
@@ -53,7 +53,7 @@ _The original [nvm](https://github.com/nvm-sh/nvm) is a completely separate proj
 
 ## Overview
 
-Manage multiple installations of node.js on a Windows computer.
+Manage multiple installations of node.js on Windows computer or Nano Server.
 
 **tl;dr** Similar (not identical) to [nvm](https://github.com/creationix/nvm), but for Windows. Has an installer. [Download Now](https://github.com/coreybutler/nvm-windows/releases)!
 
@@ -156,9 +156,9 @@ See the [wiki](https://github.com/coreybutler/nvm-windows/wiki/Common-Issues#how
 - Install go from http://golang.org
 - Download source / Git Clone the repo
 - Change GOARCH to amd64 in build.bat if you feel like building a 64-bit executable
-- Fire up a Windows command prompt and change directory to project dir
-- Execute `go get github.com/blang/semver`
-- Execute `go get github.com/olekukonko/tablewriter`
+- Fire up a Windows command prompt and change directory to `src` folder
+- Execute `go install github.com/blang/semver`
+- Execute `go install github.com/olekukonko/tablewriter`
 - Execute `build.bat`
 - Check the `dist`directory for generated setup program.
 
