@@ -39,7 +39,8 @@ body:
       label: Version
       description: What version are you running? Run `nvm version` to find out. **Please don't assume. Check the version.**
       options:
-        - 1.1.11 or newer (Default)
+        - 1.1.12 or newer (Default)
+        - 1.1.11
         - 1.1.10
         - 1.1.9
         - 1.1.8
@@ -53,6 +54,9 @@ body:
       label: Which version of Windows?
       multiple: true
       options:
+        - Nano Server LTSC2022
+        - Nano Server 2019
+        - Nano Server 2016
         - Windows 11+
         - Windows 10 (Default)
         - Windows 8.1
@@ -75,6 +79,7 @@ body:
       label: Which shell are you running NVM4W in?
       options:
         - "Command Prompt"
+        - PowerShell Core
         - PowerShell
         - WSL or WSL2
         - Cygwin
@@ -126,7 +131,7 @@ body:
         PowerShell
         Windows Developer Mode: UNKNOWN (user cannot read registry)
         
-        NVM4W Version:      1.1.11
+        NVM4W Version:      1.1.12
         NVM4W Path:         C:\Users\username\AppData\Roaming\nvm\nvm.exe
         NVM4W Settings:     C:\Users\username\AppData\Roaming\nvm\settings.txt
         NVM_HOME:           C:\Users\uername\AppData\Roaming\nvm
@@ -143,7 +148,7 @@ body:
         If you only see the standard help menu (as shown below), then you are probably running v1.1.10 or below. Upgrade to NVM4W 1.1.11+.
 
         ```sh
-        Running version 1.1.11.
+        Running version 1.1.12.
         
         Usage:
         
