@@ -39,7 +39,10 @@ body:
       label: Version
       description: What version are you running? Run `nvm version` to find out. **Please don't assume. Check the version.**
       options:
-        - 1.2.0 or newer (Default)
+        - 1.2.3 or newer (Default)
+        - 1.2.2
+        - 1.2.1
+        - 1.2.0
         - 1.1.12
         - 1.1.11
         - 1.1.10
@@ -62,6 +65,9 @@ body:
         - Windows 7
         - Windows Server 2022
         - Windows Server 2019
+        - Nano Server LTSC2022
+        - Nano Server 2019
+        - Nano Server 2016
         - Older
   - type: dropdown
     id: os-language
@@ -79,6 +85,7 @@ body:
       label: Which shell are you running NVM4W in?
       options:
         - "Command Prompt"
+        - PowerShell Core
         - PowerShell
         - WSL or WSL2
         - Cygwin
@@ -130,7 +137,7 @@ body:
         PowerShell
         Windows Developer Mode: UNKNOWN (user cannot read registry)
 
-        NVM4W Version:      1.2.0
+        NVM4W Version:      1.2.3
         NVM4W Path:         C:\Users\username\AppData\Roaming\nvm\nvm.exe
         NVM4W Settings:     C:\Users\username\AppData\Roaming\nvm\settings.txt
         NVM_HOME:           C:\Users\uername\AppData\Roaming\nvm
