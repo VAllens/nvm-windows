@@ -1,9 +1,9 @@
-<div align="center"><h2>Notice: We have started full time work on <a href="https://github.com/coreybutler/nvm-windows/wiki/Runtime">Runtime</a>, the successor to NVM for Windows or Nano Server.</h2>Complete <a href="https://t.co/oGqQCM9FPx">this form</a> to provide your thoughts and sign up for progress updates</div>
+<div align="center"><h2>Notice: We are working full time work on <a href="https://github.com/coreybutler/nvm-windows/wiki/Runtime">Runtime</a>, the successor to NVM for Windows.</h2>Complete <a href="https://t.co/oGqQCM9FPx">this form</a> to provide your thoughts and sign up for progress updates.<br/><br/>Updates will also be posted on the <A href="https://linkedin.com/company/authorsoftware">Author Software LinkedIn Page</a>.</div>
 <br/><br/>
-<h1 align="center">NVM for Windows or Nano Server</h1>
+<h1 align="center">NVM for Windows</h1>
 
 <div align="center">
-  The <a href="https://docs.microsoft.com/en-us/windows/nodejs/setup-on-windows">Microsoft</a>/<a href="https://docs.npmjs.com/cli/v9/configuring-npm/install#windows-node-version-managers">npm</a>/<a href="https://cloud.google.com/nodejs/docs/setup#installing_nvm">Google</a> recommended Node.js version manager for <em>Windows</em> or <em>Nano Server</em>.<br/>
+  The <a href="https://docs.microsoft.com/en-us/windows/nodejs/setup-on-windows">Microsoft</a>/<a href="https://docs.npmjs.com/cli/v9/configuring-npm/install#windows-node-version-managers">npm</a>/<a href="https://cloud.google.com/nodejs/docs/setup#installing_nvm">Google</a> recommended Node.js version manager for <em>Windows</em>.<br/>
 
 <details>
 <summary><b>This is not the same thing as nvm!</b> (expand for details)</summary>
@@ -19,10 +19,9 @@ _The original [nvm](https://github.com/nvm-sh/nvm) is a completely separate proj
 <div align="center">
   <table cellpadding="5" cellspacing="0" border="0" align="center">
     <tr>
-      <td><a href="https://metadoc.io"><img src="https://github.com/coreybutler/staticassets/raw/master/sponsors/metadoclogobig.png" width="200px"/></a></td>
-      <td><a href="https://enabledb.com"><img src="https://github.com/coreybutler/staticassets/raw/master/images/logos/logo_enabledb_w_text.png" width="200px"/></a></td>
-      <td><a href="https://butlerlogic.com"><img src="https://github.com/coreybutler/staticassets/raw/master/sponsors/butlerlogic_logo.png" width="200px"/></a></td>
-      <td width="25%" align="center"><a href="https://github.com/microsoft"><img src="https://user-images.githubusercontent.com/770982/195955265-5c3dca78-7140-4ec6-b05a-f308518643ee.png" height="30px"/></a></td>
+      <td><a href="https://linkedin.com/company/authorsoftware"><img src="https://github.com/coreybutler/staticassets/blob/master/sponsors/logo_author_software_flat.png" width="200px"/></a></td>
+      <td width="33%" align="center"><a href="https://ecorventures.com"><img src="https://avatars.githubusercontent.com/u/8259581?s=200&v=4" height="30px"/></a></td>
+      <td width="33%" align="center"><a href="https://github.com/microsoft"><img src="https://user-images.githubusercontent.com/770982/195955265-5c3dca78-7140-4ec6-b05a-f308518643ee.png" height="30px"/></a></td>
     </tr>
     <tr>
       <td colspan="4" align="center">
@@ -53,11 +52,11 @@ _The original [nvm](https://github.com/nvm-sh/nvm) is a completely separate proj
 
 ## Overview
 
-Manage multiple installations of node.js on Windows computer or Nano Server.
+Manage multiple installations of node.js on a Windows computer.
 
 **tl;dr** Similar (not identical) to [nvm](https://github.com/creationix/nvm), but for Windows. Has an installer. [Download Now](https://github.com/coreybutler/nvm-windows/releases)!
 
-This has always been a node version manager, not an io.js manager, so there is no back-support for io.js. Node 4+ is supported. Remember when running `nvm install` or `nvm use`, Windows usually requires administrative rights (to create symlinks).
+This has always been a node version manager, not an io.js manager, so there is no back-support for io.js. Node 4+ is supported. Remember when running `nvm install` or `nvm use`, Windows usually requires administrative rights (to create symlinks). To install the latest version of Node.js, run `nvm install latest`. To install the latest stable version, run `nvm install lts`.
 
 ![NVM for Windows](https://github.com/coreybutler/staticassets/raw/master/images/nvm-1.1.8-screenshot.jpg)
 
@@ -80,7 +79,7 @@ If you attempt to configure the `NVM_SYMLINK` to use an existing directory (like
 _PATH Conflicts_
 If you do not uninstall the original version, running `nvm use` may appear to do nothing at all. Running `node -v` will always show the original installation version. This is due to a [`PATH` conflict](https://github.com/coreybutler/nvm-windows/wiki/Common-Issues#why-do-i-need-to-uninstall-nodejs-before-installing-nvm-for-windows) that presents when the same application is installed multiple times. In NVM4W 1.1.11+, run `nvm debug` to determine if you have a `PATH` conflict.
 
-For simpliciy, we recommend uninstalling any existing versions of Node.js before using NVM for Windows. Delete any existing Node.js installation directories (e.g., `%ProgramFiles%\nodejs`) that might remain. NVM's generated symlink will not overwrite an existing (even empty) installation directory. 
+For simpliciy, we recommend uninstalling any existing versions of Node.js before using NVM for Windows. Delete any existing Node.js installation directories (e.g., `%ProgramFiles%\nodejs`) that might remain. NVM's generated symlink will not overwrite an existing (even empty) installation directory.
 
 :eyes: **Backup any global `npmrc` config** :eyes:
 (e.g. `%AppData%\npm\etc\npmrc`)
@@ -119,7 +118,7 @@ npm install -g yarn
 NVM for Windows is a command line tool. Simply type `nvm` in the console for help. The basic commands are:
 
 - **`nvm arch [32|64]`**: Show if node is running in 32 or 64 bit mode. Specify 32 or 64 to override the default architecture.
-- **`nvm check`**: Check the NVM4W process for known problems.
+- **`nvm debug`**: Check the NVM4W process for known problems.
 - **`nvm current`**: Display active version.
 - **`nvm install <version> [arch]`**:  The version can be a specific version, "latest" for the latest current version, or "lts" for the most recent LTS version. Optionally specify whether to install the 32 or 64 bit version (defaults to system arch). Set [arch] to "all" to install 32 AND 64 bit versions. Add `--insecure` to the end of this command to bypass SSL validation of the remote download server.
 - **`nvm list [available]`**: List the node.js installations. Type `available` at the end to show a list of versions available for download.
@@ -156,9 +155,9 @@ See the [wiki](https://github.com/coreybutler/nvm-windows/wiki/Common-Issues#how
 - Install go from http://golang.org
 - Download source / Git Clone the repo
 - Change GOARCH to amd64 in build.bat if you feel like building a 64-bit executable
-- Fire up a Windows command prompt and change directory to `src` folder
-- Execute `go install github.com/blang/semver`
-- Execute `go install github.com/olekukonko/tablewriter`
+- Fire up a Windows command prompt and change directory to project dir
+- Execute `go get github.com/blang/semver`
+- Execute `go get github.com/olekukonko/tablewriter`
 - Execute `build.bat`
 - Check the `dist`directory for generated setup program.
 

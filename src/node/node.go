@@ -34,6 +34,8 @@ func GetCurrentVersion() (string, string) {
 			if err == nil {
 				if string(str) == "x64" {
 					bit = "64"
+				} else if string(str) == "arm64" {
+					bit = "arm64"
 				} else {
 					bit = "32"
 				}
@@ -208,7 +210,11 @@ func GetAvailable() ([]string, []string, []string, []string, []string, map[strin
 	url := web.GetFullNodeUrl("index.json")
 
 	// Check the service to make sure the version is available
-	text := web.GetRemoteTextFile(url)
+	text, err := web.GetRemoteTextFile(url)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 	if len(text) == 0 {
 		fmt.Println("Error retrieving version list: \"" + url + "\" returned blank results. This can happen when the remote file is being updated. Please try again in a few minutes.")
 		os.Exit(0)
@@ -216,7 +222,7 @@ func GetAvailable() ([]string, []string, []string, []string, []string, map[strin
 
 	// Parse
 	var data = make([]map[string]interface{}, 0)
-	err := json.Unmarshal([]byte(text), &data)
+	err = json.Unmarshal([]byte(text), &data)
 	if err != nil {
 		fmt.Printf("Error retrieving versions from \"%s\": %v", url, err.Error())
 		os.Exit(1)

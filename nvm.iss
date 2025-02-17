@@ -1,31 +1,30 @@
 #define MyAppName "NVM for Windows"
 #define MyAppShortName "nvm"
 #define MyAppLCShortName "nvm"
-#define MyAppVersion "1.1.12"
-#define MyAppPublisher "Ecor Ventures LLC"
+#define MyAppVersion "{{VERSION}}"
+#define MyAppPublisher "Author Software Inc."
 #define MyAppURL "https://github.com/coreybutler/nvm-windows"
 #define MyAppExeName "nvm.exe"
-#define MyIcon "bin\nodejs.ico"
+#define MyIcon "bin\nvm.ico"
 #define MyAppId "40078385-F676-4C61-9A9C-F9028599D6D3"
 #define ProjectRoot "."
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
-; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 PrivilegesRequired=admin
 ; SignTool=MsSign $f
 ; SignedUninstaller=yes
 AppId={#MyAppId}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-AppCopyright=Copyright (C) 2018-2022 Ecor Ventures LLC, Corey Butler, and contributors.
+AppCopyright=Copyright (C) 2018-{code:GetCurrentYear} Author Software Inc., Ecor Ventures LLC, Corey Butler, and contributors.
 AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={userappdata}\{#MyAppShortName}
+DefaultDirName={localappdata}\{#MyAppShortName}
 DisableDirPage=no
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
@@ -37,12 +36,14 @@ Compression=lzma
 SolidCompression=yes
 ChangesEnvironment=yes
 DisableProgramGroupPage=yes
-ArchitecturesInstallIn64BitMode=x64 ia64
+ArchitecturesInstallIn64BitMode=x64
 UninstallDisplayIcon={app}\{#MyIcon}
-VersionInfoVersion={#MyAppVersion}
-VersionInfoCopyright=Copyright (C) 2018-2022 Ecor Ventures LLC, Corey Butler, and contributors.
-VersionInfoCompany=Ecor Ventures LLC
-VersionInfoDescription=Node version manager for Windows
+
+; Version information
+VersionInfoVersion={{VERSION}}.0
+VersionInfoCopyright=Copyright © {code:GetCurrentYear} Author Software Inc., Ecor Ventures LLC, Corey Butler, and contributors.
+VersionInfoCompany=Author Software Inc.
+VersionInfoDescription=Node.js version manager for Windows
 VersionInfoProductName={#MyAppShortName}
 VersionInfoProductTextVersion={#MyAppVersion}
 
@@ -59,9 +60,26 @@ Source: "{#ProjectRoot}\bin\*"; DestDir: "{app}"; BeforeInstall: PreInstall; Fla
 Name: "{group}\{#MyAppShortName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{#MyIcon}"
 Name: "{group}\Uninstall {#MyAppShortName}"; Filename: "{uninstallexe}"
 
+[Registry]
+; Register the URL protocol 'nvm'
+Root: HKCR; Subkey: "{#MyAppShortName}"; ValueType: string; ValueName: ""; ValueData: "URL:nvm"; Flags: uninsdeletekey
+Root: HKCR; Subkey: "{#MyAppShortName}"; ValueType: string; ValueName: "URL Protocol"; ValueData: ""; Flags: uninsdeletekey
+Root: HKCR; Subkey: "{#MyAppShortName}\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"; Flags: uninsdeletekey
+Root: HKCR; Subkey: "{#MyAppShortName}\shell\launch\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Flags: uninsdeletekey
+
 [Code]
 var
   SymlinkPage: TInputDirWizardPage;
+  NotificationOptionPage: TInputOptionWizardPage;
+  EmailPage: TWizardPage;
+  EmailEdit: TEdit;
+  EmailLabel: TLabel;
+  PreText: TLabel;
+
+function GetCurrentYear(Param: String): String;
+begin
+  result := GetDateTimeString('yyyy', '-', ':');
+end;
 
 function IsDirEmpty(dir: string): Boolean;
 var
@@ -82,7 +100,7 @@ begin
   end;
 end;
 
-//function getInstalledVErsions(dir: string):
+//function getInstalledVersions(dir: string):
 var
   nodeInUse: string;
 
@@ -193,14 +211,176 @@ begin
   end;
 end;
 
+function IsSymbolicLink(const Path: string): Boolean;
+var
+  FindRec: TFindRec;
+begin
+  Result := False;
+  if FindFirst(Path, FindRec) then
+  begin
+    Result := (FindRec.Attributes and FILE_ATTRIBUTE_REPARSE_POINT) <> 0;
+    FindClose(FindRec);
+  end;
+end;
+
+procedure SymlinkPageChange(Sender: TObject);
+var
+  NewPath: string;
+begin
+  // Append '\nodejs' to the path if it is not already appended
+  NewPath := AddBackslash(SymlinkPage.Values[0]) + 'nodejs';
+  if Copy(SymlinkPage.Values[0], Length(SymlinkPage.Values[0]) - Length('\nodejs') + 1, Length('\nodejs')) <> '\nodejs' then
+    SymlinkPage.Values[0] := NewPath;
+
+  // Check if the new path exists and is not a symbolic link
+  if DirExists(NewPath) and not IsSymbolicLink(NewPath) then
+  begin
+    MsgBox('The directory "' + NewPath + '" already exists as a physical directory. Please choose a different location.', mbError, MB_OK);
+    SymlinkPage.Values[0] := '';
+  end;
+end;
+
 procedure InitializeWizard;
 begin
   SymlinkPage := CreateInputDirPage(wpSelectDir,
-    'Set Node.js Symlink', 'The active version of Node.js will always be available here.',
+    'Active Version Location',
+    'The active version of Node.js will always be available at this location.',
     'Select the folder in which Setup should create the symlink, then click Next.',
     False, '');
   SymlinkPage.Add('This directory will automatically be added to your system path.');
-  SymlinkPage.Values[0] := ExpandConstant('{pf}\nodejs');
+  SymlinkPage.Values[0] := ExpandConstant('C:\nvm4w\nodejs');
+
+  // Assign the OnChange event handler
+  SymlinkPage.Edits[0].OnChange := @SymlinkPageChange;
+
+  // Notification option page (after the Symlink page)
+  NotificationOptionPage := CreateInputOptionPage(
+    SymlinkPage.ID, // Ensures the Notification page appears right after the Symlink page
+    'Desktop Notifications (PREVIEW)',
+    'NVM for Windows supports the basic (free) edition of Author Notifications.',
+    'Select the events you wish to be notified of. Your choices can be modified at any time in the future.',
+    FALSE,
+    FALSE);
+
+  // Pre-checked checkbox
+  NotificationOptionPage.AddEx('Node.js LTS releases (Long-Term Support/Stable)', 0, FALSE);
+  NotificationOptionPage.AddEx('Node.js Current releases (Latest/Testing)', 0, FALSE);
+  NotificationOptionPage.AddEx('NVM For Windows releases', 0, FALSE);
+  NotificationOptionPage.AddEx('Author updates and releases (upcoming NVM for Windows successor)', 0, FALSE);
+  NotificationOptionPage.Values[0] := TRUE;
+  NotificationOptionPage.Values[1] := TRUE;
+  NotificationOptionPage.Values[2] := TRUE;
+  NotificationOptionPage.Values[3] := TRUE;
+
+  // Email Input Page
+  EmailPage := CreateCustomPage(
+    NotificationOptionPage.ID,
+    'Author Progress Email Signup',
+    'Get details about Author development milestones in your inbox.');
+
+  // Add introductory text above the input field
+  PreText := TLabel.Create(WizardForm);
+  PreText.Parent := EmailPage.Surface;
+  PreText.Caption := 'Author is the upcoming successor to NVM for Windows. Provide your email address to be informed of development milestones, release timelines, and enterprise capabilities. ' +
+                     'Leave it blank if you do not wish to receive notifications.';
+  PreText.Left := 10;
+  PreText.Top := 10;
+  PreText.Width := 600; // Adjust width to fit the text
+  PreText.WordWrap := True; // Ensures the text wraps if it exceeds the width
+
+  // Add a label for the email input field
+  EmailLabel := TLabel.Create(WizardForm);
+  EmailLabel.Parent := EmailPage.Surface;
+  EmailLabel.Caption := 'Email Address: (Optional)';
+  EmailLabel.Font.Style := [fsBold];
+  EmailLabel.Left := 10;  // Position from the left
+  EmailLabel.Top := 80;   // Position from the top
+
+  // Add an email input field on the EmailPage
+  EmailEdit := TEdit.Create(WizardForm);
+  EmailEdit.Parent := EmailPage.Surface;
+  EmailEdit.Left := 10;   // Align with the label
+  EmailEdit.Top := 110;    // Position just below the label
+  EmailEdit.Width := 610;
+  EmailEdit.Text := ''; // Default value
+end;
+
+function LastPos(const SubStr, S: string): Integer;
+var
+  I: Integer;
+begin
+  Result := 0;
+  for I := Length(S) downto 1 do
+  begin
+    if Copy(S, I, Length(SubStr)) = SubStr then
+    begin
+      Result := I;
+      Exit;
+    end;
+  end;
+end;
+
+function IsValidEmail(const Email: string): Boolean;
+var
+  AtPos, DotPos: Integer;
+begin
+  AtPos := Pos('@', Email);
+  DotPos := LastPos('.', Email);
+  Result := (AtPos > 1) and (DotPos > AtPos + 1) and (DotPos < Length(Email));
+end;
+
+function NextButtonClick(CurPageID: Integer): Boolean;
+var
+  Email: string;
+begin
+  Result := True; // Allow navigation by default
+
+  if CurPageID = SymlinkPage.ID then
+  begin
+    // Check if the directory is empty
+    if DirExists(SymlinkPage.Values[0]) then
+    begin
+      if IsDirEmpty(SymlinkPage.Values[0]) then
+      begin
+        // If the directory is empty, just delete it since it will be recreated anyway.
+        RemoveDir(SymlinkPage.Values[0]);
+      end
+      else
+      begin
+        // Show a warning if the directory is not empty
+        MsgBox('The selected directory is not empty. Please choose a different path.', mbError, MB_OK);
+        Result := False; // Prevent navigation to the next page
+      end;
+    end;
+  end;
+
+  if CurPageID = EmailPage.ID then
+  begin
+    Email := Trim(EmailEdit.Text); // Remove leading/trailing spaces
+    if (Email <> '') and not IsValidEmail(Email) then
+    begin
+      MsgBox('Please enter a valid email address or leave the field blank.', mbError, MB_OK);
+      Result := False; // Prevent navigation to the next page
+    end
+    else
+    begin
+      WizardForm.NextButton.Enabled := True; // Allow navigation to the next page
+    end;
+  end;
+
+  // Handle the Notification page logic
+  if CurPageID = NotificationOptionPage.ID then
+  begin
+    if NotificationOptionPage.Values[0] then
+    begin
+      Log('User opted to enable Node.js release notifications.');
+      // Add your logic for enabling notifications here
+    end
+    else
+    begin
+      Log('User opted out of Node.js release notifications.');
+    end;
+  end;
 end;
 
 function InitializeUninstall(): Boolean;
@@ -257,7 +437,22 @@ end;
 procedure CurStepChanged(CurStep: TSetupStep);
 var
   path: string;
+  rootDir: string;
 begin
+  if CurStep = ssInstall then
+  begin
+    // Ensure the root directory exists
+    rootDir := ExtractFileDir(SymlinkPage.Values[0]);
+    if not DirExists(rootDir) then
+    begin
+      if not CreateDir(rootDir) then
+      begin
+        MsgBox('Failed to create root directory: ' + rootDir, mbError, MB_OK);
+        WizardForm.Close;
+      end;
+    end;
+  end;
+
   if CurStep = ssPostInstall then
   begin
     SaveStringToFile(ExpandConstant('{app}\settings.txt'), 'root: ' + ExpandConstant('{app}') + #13#10 + 'path: ' + SymlinkPage.Values[0] + #13#10, False);
@@ -298,6 +493,29 @@ begin
       RegWriteExpandStringValue(HKEY_CURRENT_USER, 'Environment', 'Path', path);
     end;
   end;
+
+end;
+
+function GetNotificationString(Param: String): String;
+begin
+  Result := ' subscribe';
+  if NotificationOptionPage.Values[0] then
+  begin
+    Result := Result + ' --lts';
+  end;
+  if NotificationOptionPage.Values[1] then
+  begin
+    Result := Result + ' --current';
+  end;
+  if NotificationOptionPage.Values[2] then
+  begin
+    Result := Result + ' --nvm4w';
+  end;
+  if NotificationOptionPage.Values[3] then
+  begin
+    Result := Result + ' --author';
+  end;
+  Result := Trim(Result);
 end;
 
 function getSymLink(o: string): string;
@@ -315,13 +533,27 @@ begin
   Result := Length(nodeInUse) > 0;
 end;
 
+function isEmailSupplied(): boolean;
+begin
+  Result := Trim(EmailEdit.Text) <> '';
+end;
+
+function GetEmailRegistrationString(Param: String): string;
+begin
+  Result := ' author newsletter --notify ' + Trim(EmailEdit.Text);
+end;
+
 [Run]
-Filename: "{cmd}"; Parameters: "/C ""mklink /D ""{code:getSymLink}"" ""{code:getCurrentVersion}"""" "; Check: isNodeAlreadyInUse; Flags: runhidden;
+Filename: "{app}\nvm.exe"; Parameters: "{code:GetNotificationString}"; Flags: waituntilidle runhidden;
+Filename: "{app}\nvm.exe"; Parameters: "{code:GetEmailRegistrationString}"; Check: isEmailSupplied; Flags: waituntilidle runhidden;
+Filename: "{cmd}"; Parameters: "/C ""mklink /D ""{code:getSymLink}"" ""{code:getCurrentVersion}"""" "; Check: isNodeAlreadyInUse; Flags: waituntilidle runhidden;
+Filename: "powershell.exe"; Parameters: "-NoExit -Command refreshenv; cls; Write-Host 'Welcome to NVM for Windows v{{VERSION}}'"; Description: "Open with Powershell"; Flags: postinstall skipifsilent;
+
+[UninstallRun]
+Filename: "{app}\nvm.exe"; Parameters: "unsubscribe --lts --current --nvm4w --author"; Flags: runhidden; RunOnceId: "UnregisterNVMForWindows";
+Filename: "{app}\nvm.exe"; Parameters: "off"; Flags: runhidden; RunOnceId: "RemoveNVMForWindowsSymlink";
+Filename: "{cmd}"; Parameters: "/C rmdir /S /Q ""{code:getSymLink}"""; Flags: runhidden; RunOnceId: "RemoveSymlink";
 
 [UninstallDelete]
-Type: files; Name: "{app}\nvm.exe";
-Type: files; Name: "{app}\elevate.cmd";
-Type: files; Name: "{app}\elevate.vbs";
-Type: files; Name: "{app}\nodejs.ico";
-Type: files; Name: "{app}\settings.txt";
 Type: filesandordirs; Name: "{app}";
+Type: filesandordirs; Name: "{localappdata}\.nvm";
